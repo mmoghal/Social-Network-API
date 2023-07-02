@@ -62,6 +62,10 @@ npm start
 
 The API server will start running on `http://localhost:3000`.
 
+## Walkthrough Video
+
+https://drive.google.com/file/d/1KNo4iO-pPue0ZnGgrZOdjhDUA-gMpt43/view
+
 ## API Endpoints
 
 The following API endpoints are available:
