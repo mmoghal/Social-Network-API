@@ -1,14 +1,20 @@
 const express = require('express');
-const { connectDB } = require('./config/connection');
-const { Reaction, Thought, User } = require('./models');
+const mongoose = require('mongoose');
+const routes = require('./routes');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Connect to MongoDB
-connectDB()
+mongoose.connect(
+  process.env.MONGODB_URI || 'mongodb://localhost/social_network_db',
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  }
+)
   .then(() => {
-    // Start the server after successful database connection
+    console.log('Connected to the database');
     app.listen(PORT, () => {
       console.log(`Server listening on port ${PORT}`);
     });
@@ -17,24 +23,16 @@ connectDB()
     console.error('Error connecting to the database', error);
   });
 
-// Example route
+// Middleware
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// Routes
+app.use('/api', routes);
+
+// Default route
 app.get('/', (req, res) => {
   res.send('Welcome to the Social Network API');
 });
-
-// Define your API routes here
-
-// Example route
-app.get('/api/users', async (req, res) => {
-  try {
-    const users = await User.find();
-    res.json(users);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server Error' });
-  }
-});
-
-// Add more routes as needed
 
 module.exports = app;

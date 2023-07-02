@@ -1,14 +1,17 @@
-const { User, Thought } = require('../models');
+const { User } = require('../models');
 
 const userController = {
   getAllUsers(req, res) {
     User.find({})
       .populate({
+        path: 'thoughts',
+        select: '-__v',
+      })
+      .populate({
         path: 'friends',
         select: '-__v',
       })
       .select('-__v')
-      .sort({ createdAt: -1 })
       .then((users) => res.json(users))
       .catch((err) => {
         console.log(err);
@@ -71,6 +74,7 @@ const userController = {
         if (!user) {
           return res.status(404).json({ message: 'No user found with this id' });
         }
+        // Remove user's associated thoughts
         return Thought.deleteMany({ _id: { $in: user.thoughts } });
       })
       .then(() => {
@@ -85,8 +89,8 @@ const userController = {
   addFriend(req, res) {
     User.findOneAndUpdate(
       { _id: req.params.userId },
-      { $addToSet: { friends: req.params.friendId } },
-      { new: true, runValidators: true }
+      { $push: { friends: req.params.friendId } },
+      { new: true }
     )
       .then((user) => {
         if (!user) {
